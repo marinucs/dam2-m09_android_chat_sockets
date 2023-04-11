@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">M09_Chat_Sockets</string>
+    <string name="escribe_tu_mensaje">Escribe tu mensaje</string>
+    <string name="send">Enviar</string>
+    <string name="introduce_la_ip">Introduce la IP</string>
+    <string name="conectar">Conectar</string>
+</resources>
