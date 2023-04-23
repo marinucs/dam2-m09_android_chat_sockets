@@ -1,17 +1,26 @@
 package com.dam2.m09_chat_sockets;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.JsonReader;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.HttpURLConnection;
 import java.net.Socket;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,18 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
         connectButton.setOnClickListener(view -> {
             if (Objects.requireNonNull(connectText.getText()).toString().length() > 0) {
-                try {
-                    chatField.append("Intentando realizar conexion...");
-                    System.out.println(connectText.getText().toString());
-                    Socket client = new Socket(connectText.getText().toString(), SERVERPORT);
-                    chatField.append("\nConectado a: " + client.getInetAddress() + "\n\n");
-                    this.output = new ObjectOutputStream(client.getOutputStream());
-                    ObjectInputStream input = new ObjectInputStream(client.getInputStream());
-
-                    new ThreadClient(input, chatField).start();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                AsyncTaskConnect asyncTaskConnect = new AsyncTaskConnect();
+                asyncTaskConnect.execute(connectText.getText().toString());
             } else {
                 Toast.makeText(context, "Address cannot be empty!", Toast.LENGTH_SHORT).show();
             }
@@ -58,19 +57,54 @@ public class MainActivity extends AppCompatActivity {
 
         sendButton.setOnClickListener(view -> {
             if (Objects.requireNonNull(inputText.getText()).toString().length() > 0) {
-                try {
-                    String message = inputText.getText().toString();
-                    output.writeObject(message + "\n");
-                    output.flush();
-                    inputText.setText("");
-                    chatField.append("CLIENTE >>> " + message + "\n");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                AsyncTaskSendMessage asyncTaskSendMessage = new AsyncTaskSendMessage();
+                asyncTaskSendMessage.execute(inputText.getText().toString());
             } else {
                 Toast.makeText(context, "Message cannot be empty!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @SuppressWarnings("deprecation")
+    @SuppressLint("StaticFieldLeak")
+    class AsyncTaskConnect extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... values) {
+            try {
+                runOnUiThread(() -> chatField.append("Intentando realizar conexion..."));
+                Socket client = new Socket(values[0], SERVERPORT);
+                runOnUiThread(() -> chatField.append("\nConectado a: " + client.getInetAddress() + "\n\n"));
+                output = new ObjectOutputStream(client.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(client.getInputStream());
+
+                new ThreadClient(input, chatField).start();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    @SuppressLint("StaticFieldLeak")
+    class AsyncTaskSendMessage extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... values) {
+            try {
+                String message = values[0];
+                output.writeObject(message + "\n");
+                output.flush();
+                runOnUiThread(() -> {
+                    inputText.setText("");
+                    chatField.append("CLIENTE >>> " + message + "\n");
+                });
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
     }
 
 }
