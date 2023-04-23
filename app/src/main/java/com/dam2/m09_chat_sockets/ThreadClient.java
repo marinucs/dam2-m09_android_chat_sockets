@@ -1,7 +1,6 @@
 package com.dam2.m09_chat_sockets;
 
 import android.widget.TextView;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 

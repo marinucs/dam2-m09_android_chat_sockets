@@ -1,7 +1,6 @@
 package com.dam2.m09_chat_sockets;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -12,7 +11,6 @@ import android.widget.Scroller;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
     private TextInputEditText inputText;
     private TextView chatField;
     private static final int SERVERPORT = 4000;
-
     private boolean serverOnline = false;
 
     @Override
