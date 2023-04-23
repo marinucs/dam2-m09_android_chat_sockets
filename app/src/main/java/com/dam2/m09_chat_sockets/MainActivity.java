@@ -1,31 +1,29 @@
 package com.dam2.m09_chat_sockets;
 
 import androidx.appcompat.app.AppCompatActivity;
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
+
 import java.io.IOException;
-import java.net.InetAddress;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
     private Context context;
-    private EditText connectText;
+    private TextInputEditText connectText;
     private Button connectButton;
     private TextInputEditText inputText;
     private Button sendButton;
     private TextView chatField;
     private static final int SERVERPORT = 4000;
+    private ObjectOutputStream output;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +38,19 @@ public class MainActivity extends AppCompatActivity {
         chatField = findViewById(R.id.chatField);
 
         connectButton.setOnClickListener(view -> {
-            if (connectText.getText().toString().length() > 0) {
-                AsyncTaskConnectSocket AsyncTaskConnectSocket = new AsyncTaskConnectSocket();
-                AsyncTaskConnectSocket.execute(connectText.getText().toString());
+            if (Objects.requireNonNull(connectText.getText()).toString().length() > 0) {
+                try {
+                    chatField.append("Intentando realizar conexion...");
+                    System.out.println(connectText.getText().toString());
+                    Socket client = new Socket(connectText.getText().toString(), SERVERPORT);
+                    chatField.append("\nConectado a: " + client.getInetAddress() + "\n\n");
+                    this.output = new ObjectOutputStream(client.getOutputStream());
+                    ObjectInputStream input = new ObjectInputStream(client.getInputStream());
+
+                    new ThreadClient(input, chatField).start();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             } else {
                 Toast.makeText(context, "Address cannot be empty!", Toast.LENGTH_SHORT).show();
             }
@@ -50,61 +58,19 @@ public class MainActivity extends AppCompatActivity {
 
         sendButton.setOnClickListener(view -> {
             if (Objects.requireNonNull(inputText.getText()).toString().length() > 0) {
-                // AsyncTaskSendMessage asyncTaskSendMessage = new AsyncTaskSendMessage();
-                // asyncTaskSendMessage.execute(inputText.getText().toString());
+                try {
+                    String message = inputText.getText().toString();
+                    output.writeObject(message + "\n");
+                    output.flush();
+                    inputText.setText("");
+                    chatField.append("CLIENTE >>> " + message + "\n");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             } else {
                 Toast.makeText(context, "Message cannot be empty!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    @SuppressWarnings("deprecation")
-    @SuppressLint("StaticFieldLeak")
-    class AsyncTaskConnectSocket extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            // chatField.setText(chatField.getText().toString().append("Connecting to server...\n"));
-        }
-
-        @Override
-        protected String doInBackground(String... values) {
-            try {
-                //Se conecta al servidor
-                InetAddress serverAddr = InetAddress.getByName(connectText.getText().toString());
-                Socket socket = new Socket(serverAddr, SERVERPORT);
-
-                //envia peticion de cliente
-                /*Log.i("I/TCP Client", "Send data to server");
-                PrintStream output = new PrintStream(socket.getOutputStream());
-                String request = values[0];
-                output.println(request);*/
-
-                //recibe respuesta del servidor y formatea a String
-                /*Log.i("I/TCP Client", "Received data to server");
-                InputStream stream = socket.getInputStream();
-                byte[] lenBytes = new byte[256];
-                stream.read(lenBytes,0,256);
-                String received = new String(lenBytes,"UTF-8").trim();*/
-                //Log.i("I/TCP Client", "Received " + received);
-                //Log.i("I/TCP Client", "");
-                //cierra conexion
-                socket.close();
-                // return received;
-                return null;
-            } catch (UnknownHostException ex) {
-                //Log.e("E/TCP Client", "" + ex.getMessage());
-                return ex.getMessage();
-            } catch (IOException ex) {
-                //Log.e("E/TCP Client", "" + ex.getMessage());
-                return ex.getMessage();
-            }
-        }
-
-        /*@Override
-        protected void onPostExecute(String[] libros) {
-            //
-        }*/
-    }
 }
