@@ -6,7 +6,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.widget.Button;
+import android.widget.Scroller;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
@@ -33,11 +35,13 @@ public class MainActivity extends AppCompatActivity {
 
         context = MainActivity.this;
         connectText = findViewById(R.id.connectText);
-        Button connectButton = findViewById(R.id.connectButton);
-        inputText = findViewById(R.id.inputText);
-        Button sendButton = findViewById(R.id.sendButton);
         chatField = findViewById(R.id.chatField);
+        inputText = findViewById(R.id.inputText);
+        inputText.setScroller(new Scroller(context));
+        inputText.setVerticalScrollBarEnabled(true);
+        inputText.setMovementMethod(new ScrollingMovementMethod());
 
+        Button connectButton = findViewById(R.id.connectButton);
         connectButton.setOnClickListener(view -> {
             if (Objects.requireNonNull(connectText.getText()).toString().length() > 0) {
                 AsyncTaskConnect asyncTaskConnect = new AsyncTaskConnect();
@@ -47,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button sendButton = findViewById(R.id.sendButton);
         sendButton.setOnClickListener(view -> {
             if (Objects.requireNonNull(inputText.getText()).toString().length() > 0) {
                 AsyncTaskSendMessage asyncTaskSendMessage = new AsyncTaskSendMessage();

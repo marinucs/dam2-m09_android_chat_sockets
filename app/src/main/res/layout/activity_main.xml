@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -46,9 +47,9 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintTop_toTopOf="@id/scrollView" />
 
-    <HorizontalScrollView
+    <ScrollView
         android:id="@+id/scrollView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="5dp"
         app:layout_constraintBottom_toTopOf="@+id/botHorizontalDivider"
@@ -58,16 +59,15 @@
 
         <TextView
             android:id="@+id/chatField"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
             android:minWidth="400dp"
             android:textColor="@color/black"
             android:textSize="20sp"
-            android:scrollbars="vertical"
             tools:ignore="HardcodedText" />
 
-    </HorizontalScrollView>
+    </ScrollView>
 
     <View
         android:id="@+id/botHorizontalDivider"
@@ -95,7 +95,9 @@
             android:layout_height="match_parent"
             android:hint="@string/escribe_tu_mensaje"
             android:textSize="20sp"
-            android:textColorHint="#616161" />
+            android:inputType="textMultiLine"
+            android:textColorHint="#616161"
+            android:scrollbarAlwaysDrawVerticalTrack="true"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
