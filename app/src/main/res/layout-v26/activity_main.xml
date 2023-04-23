@@ -56,22 +56,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/horizontal_guideline1">
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <TextView
             android:id="@+id/chatField"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:padding="5dp"
             android:minWidth="400dp"
             android:textColor="@color/black"
-            android:text="Missatge de provaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
             android:textSize="20sp"
-            android:scrollbars="horizontal|vertical"
-            android:scrollHorizontally="true"
-            android:autoSizeMaxTextSize="20sp"
-            app:autoSizeMinTextSize="15sp"
-            app:autoSizeTextType="uniform"
-            android:maxLines="1"
-            app:autoSizeStepGranularity="2sp"
+            android:scrollbars="vertical"
             tools:ignore="HardcodedText" />
 
     </HorizontalScrollView>
