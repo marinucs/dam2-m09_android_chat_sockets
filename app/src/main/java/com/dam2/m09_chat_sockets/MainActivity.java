@@ -63,8 +63,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(String... values) {
-            runOnUiThread(() -> chatField.append("Intentando realizar conexion..."));
-            try (Socket client = new Socket(values[0], SERVERPORT)) {
+            try {
+                runOnUiThread(() -> chatField.append("Intentando realizar conexion..."));
+                Socket client = new Socket(values[0], SERVERPORT);
                 runOnUiThread(() -> chatField.append("\nConectado a: " + client.getInetAddress() + "\n\n"));
                 output = new ObjectOutputStream(client.getOutputStream());
                 ObjectInputStream input = new ObjectInputStream(client.getInputStream());
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 output.flush();
                 runOnUiThread(() -> {
                     inputText.setText("");
-                    chatField.append("CLIENTE >>> " + message + "\n");
+                    chatField.append(message + "\n");
                 });
             } catch (IOException e) {
                 throw new RuntimeException(e);
