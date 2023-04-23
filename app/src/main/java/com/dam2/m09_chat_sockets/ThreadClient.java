@@ -20,7 +20,7 @@ public class ThreadClient extends Thread {
             boolean end = false;
             do {
                 String message = (String) input.readObject();
-                chatField.append(message);
+                chatField.append("SERVIDOR >>> " + message);
                 if (message.equals("fin\n")) end = true;
             } while (!end);
         } catch (Exception e) {
