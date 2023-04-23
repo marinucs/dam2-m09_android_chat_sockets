@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 public class ThreadClient extends Thread {
-    private ObjectInputStream input;
-    private TextView chatField;
+    private final ObjectInputStream input;
+    private final TextView chatField;
 
     public ThreadClient(ObjectInputStream input, TextView chatField) throws IOException {
         this.chatField = chatField;
@@ -27,5 +27,5 @@ public class ThreadClient extends Thread {
             System.out.println("Se ha recibido un error: " + e.getMessage());
         }
     }
-}
 
+}

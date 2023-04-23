@@ -6,33 +6,25 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.JsonReader;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.HttpURLConnection;
 import java.net.Socket;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ObjectOutputStream output;
     private Context context;
     private TextInputEditText connectText;
-    private Button connectButton;
     private TextInputEditText inputText;
-    private Button sendButton;
     private TextView chatField;
     private static final int SERVERPORT = 4000;
-    private ObjectOutputStream output;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
 
         context = MainActivity.this;
         connectText = findViewById(R.id.connectText);
-        connectButton = findViewById(R.id.connectButton);
+        Button connectButton = findViewById(R.id.connectButton);
         inputText = findViewById(R.id.inputText);
-        sendButton = findViewById(R.id.sendButton);
+        Button sendButton = findViewById(R.id.sendButton);
         chatField = findViewById(R.id.chatField);
 
         connectButton.setOnClickListener(view -> {
@@ -77,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> chatField.append("\nConectado a: " + client.getInetAddress() + "\n\n"));
                 output = new ObjectOutputStream(client.getOutputStream());
                 ObjectInputStream input = new ObjectInputStream(client.getInputStream());
-
                 new ThreadClient(input, chatField).start();
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -98,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 output.flush();
                 runOnUiThread(() -> {
                     inputText.setText("");
-                    chatField.append("CLIENTE >>> " + message + "\n");
+                    chatField.append(message + "\n");
                 });
             } catch (IOException e) {
                 throw new RuntimeException(e);
