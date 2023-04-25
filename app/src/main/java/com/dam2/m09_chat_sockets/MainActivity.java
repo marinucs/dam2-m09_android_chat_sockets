@@ -110,4 +110,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    class ThreadClient extends Thread {
+        private final ObjectInputStream input;
+        private final TextView chatField;
+
+        public ThreadClient(ObjectInputStream input, TextView chatField) throws IOException {
+            this.chatField = chatField;
+            this.input = input;
+        }
+
+        @Override
+        public void run() {
+            try {
+                boolean end = false;
+                do {
+                    String message = (String) input.readObject();
+                    runOnUiThread(() -> chatField.append("SERVIDOR >>> " + message));
+                    if (message.equals("fin\n")) end = true;
+                } while (!end);
+            } catch (Exception e) {
+                System.out.println("Se ha recibido un error: " + e.getMessage());
+            }
+        }
+    }
+
 }
