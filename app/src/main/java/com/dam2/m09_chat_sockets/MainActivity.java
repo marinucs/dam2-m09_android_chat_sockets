@@ -1,7 +1,6 @@
 package com.dam2.m09_chat_sockets;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -12,7 +11,6 @@ import android.widget.Scroller;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private TextInputEditText inputText;
     private TextView chatField;
     private static final int SERVERPORT = 4000;
+    private boolean serverOnline = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +42,13 @@ public class MainActivity extends AppCompatActivity {
 
         Button connectButton = findViewById(R.id.connectButton);
         connectButton.setOnClickListener(view -> {
-            if (Objects.requireNonNull(connectText.getText()).toString().length() > 0) {
+            String ip = Objects.requireNonNull(connectText.getText()).toString();
+            if (Objects.requireNonNull(connectText.getText()).toString().length() > 0 &&
+                    ip.matches("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$")) {
                 AsyncTaskConnect asyncTaskConnect = new AsyncTaskConnect();
                 asyncTaskConnect.execute(connectText.getText().toString());
             } else {
-                Toast.makeText(context, "Address cannot be empty!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Incorrect IP address provided", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -69,14 +70,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... values) {
             try {
-                runOnUiThread(() -> chatField.append("Intentando realizar conexion..."));
+                runOnUiThread(() -> chatField.append("Intentando realizar conexión...\n"));
                 Socket client = new Socket(values[0], SERVERPORT);
                 runOnUiThread(() -> chatField.append("\nConectado a: " + client.getInetAddress() + "\n\n"));
                 output = new ObjectOutputStream(client.getOutputStream());
                 ObjectInputStream input = new ObjectInputStream(client.getInputStream());
+                serverOnline = true;
                 new ThreadClient(input, chatField).start();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                // throw new RuntimeException(e);
+                runOnUiThread(() -> Toast.makeText(context, "Servidor no disponible", Toast.LENGTH_LONG).show());
             }
             return null;
         }
@@ -90,12 +93,16 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(String... values) {
             try {
                 String message = values[0];
-                output.writeObject(message + "\n");
-                output.flush();
-                runOnUiThread(() -> {
-                    inputText.setText("");
-                    chatField.append(message + "\n");
-                });
+                if (serverOnline) {
+                    output.writeObject(message + "\n");
+                    output.flush();
+                    runOnUiThread(() -> {
+                        inputText.setText("");
+                        chatField.append(message + "\n");
+                    });
+                } else {
+                    runOnUiThread(() -> Toast.makeText(context, "Servidor no disponible", Toast.LENGTH_LONG).show());
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
